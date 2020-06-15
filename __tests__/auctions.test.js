@@ -17,26 +17,42 @@ describe('auction routes', () => {
     return mongoose.connection.dropDatabase();
   });
 
+  let user;
+  beforeEach(() => {
+    user = User.create({
+      email: 'jaime@jaime.com',
+      password: '12345'
+    });
+  });
+
   afterAll(async() => {
     await mongoose.connection.close();
     return mongod.stop();
   });
 
-  it('creates a new auction with POST', async() => {
-    const user = await User.create({
-      email: 'jaime@jaime.com',
-      password: '12345'
-    });
-
+  it('creates a new auction with POST', () => {
     return request(app)
       .post('/api/v1/auctions')
       .auth('jaime@jaime.com', '12345')
       .send({
-        user: user.id,
+        user: user._id,
         title: 'Nossa Familia Coffee',
         description: 'Light roast',
         quantity: '20 lbs',
         ending: '2020-06-18T16:00:00Z'
+      })
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.anything(),
+          user: expect.anything(),
+          title: 'Nossa Familia Coffee',
+          description: 'Light roast',
+          quantity: '20 lbs',
+          ending: '2020-06-18T16:00:00.000Z',
+          __v: 0
+        });
       });
   });
+
+  // it('gets the auction details by id with GET',);
 });
