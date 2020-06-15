@@ -18,8 +18,8 @@ describe('auction routes', () => {
   });
 
   let user;
-  beforeEach(() => {
-    user = User.create({
+  beforeEach(async() => {
+    user = await User.create({
       email: 'jaime@jaime.com',
       password: '12345'
     });
@@ -44,7 +44,7 @@ describe('auction routes', () => {
       .then(res => {
         expect(res.body).toEqual({
           _id: expect.anything(),
-          user: expect.anything(),
+          user: user.id,
           title: 'Nossa Familia Coffee',
           description: 'Light roast',
           quantity: '20 lbs',
