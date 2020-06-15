@@ -29,7 +29,7 @@ describe('auction routes', () => {
     });
 
     return request(app)
-      .post('./api/v1/auctions')
+      .post('/api/v1/auctions')
       .auth('jaime@jaime.com', '12345')
       .send({
         user: user.id,
