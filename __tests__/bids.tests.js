@@ -1,0 +1,68 @@
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongod = new MongoMemoryServer();
+const mongoose = require('mongoose');
+const connect = require('../lib/utils/connect');
+
+const request = require('supertest');
+const app = require('../lib/app');
+const User = require('../lib/models/User');
+const Auction = require('../lib/models/Auction');
+
+describe('bid routes', () => {
+  beforeAll(async() => {
+    const uri = await mongod.getUri();
+    return connect(uri);
+  });
+
+  beforeEach(() => {
+    return mongoose.connection.dropDatabase();
+  });
+
+  let user;
+  beforeEach(async() => {
+    user = await User.create({
+      email: 'jaime@jaime.com',
+      password: '12345'
+    });
+  });
+
+  let auction;
+  beforeEach(async() => {
+    auction = await Auction.create({
+      user: user._id,
+      title: 'Nossa Familia Coffee',
+      description: 'Light roast',
+      quantity: '20 lbs',
+      ending: '2020-06-18T16:00:00Z'
+    });
+  });
+
+  afterAll(async() => {
+    await mongoose.connection.close();
+    return mongod.stop();
+  });
+
+  it('creates a new bid with POST', () => {
+    return request(app)
+      .post('/api/v1/bids')
+      .auth('jaime@jaime.com', '12345')
+      .send({
+        user: user._id,
+        auction: auction._id,
+        price: '$50',
+        quantity: '10 lbs',
+        accepted: false
+      })
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.anything(),
+          user: user.id,
+          auction: auction.id,
+          price: '$50',
+          quantity: '10 lbs',
+          accepted: false,
+          __v: 0
+        });
+      });
+  });
+});
