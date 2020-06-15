@@ -6,6 +6,7 @@ const connect = require('../lib/utils/connect');
 const request = require('supertest');
 const app = require('../lib/app');
 const User = require('../lib/models/User');
+const Auction = require('../lib/models/Auction');
 
 describe('auction routes', () => {
   beforeAll(async() => {
@@ -54,5 +55,26 @@ describe('auction routes', () => {
       });
   });
 
-  // it('gets the auction details by id with GET',);
+  it('gets the auction details by id with GET', () => {
+    return Auction.create({
+      user: user._id,
+      title: 'Nossa Familia Coffee',
+      description: 'Light roast',
+      quantity: '20 lbs',
+      ending: '2020-06-18T16:00:00Z'
+    })
+      .then(auction => request(app).get(`/api/v1/auctions/${auction._id}`))
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.anything(),
+          user: user.id,
+          title: 'Nossa Familia Coffee',
+          description: 'Light roast',
+          quantity: '20 lbs',
+          ending: '2020-06-18T16:00:00.000Z',
+          __v: 0,
+          // bids: {}
+        });
+      });
+  });
 });
