@@ -95,4 +95,33 @@ describe('auction routes', () => {
         });
       });
   });
+
+  it('gets all auctions with GET', async() => {
+    const auctions = await Auction.create([
+      {
+        user: user._id,
+        title: 'Nossa Familia Coffee',
+        description: 'Light roast',
+        quantity: '20 lbs',
+        ending: '2020-06-18T16:00:00Z'
+      },
+      {
+        user: user._id,
+        title: 'La Colombe',
+        description: 'Medium roast',
+        quantity: '40 lbs',
+        ending: '2020-06-19T16:00:00Z'
+      }]);
+
+    return request(app).get('/api/v1/auctions/')
+      .auth('jaime@jaime.com', '12345')
+      .then(res => {
+        for(let i = 0; i < res.body.length; i++){
+          expect(res.body[i]).toEqual({
+            _id: expect.anything(),
+            title: auctions[i].title
+          });
+        }
+      });
+  });
 });
