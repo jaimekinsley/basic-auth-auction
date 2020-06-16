@@ -7,6 +7,7 @@ const request = require('supertest');
 const app = require('../lib/app');
 const User = require('../lib/models/User');
 const Auction = require('../lib/models/Auction');
+const Bid = require('../lib/models/Bid');
 
 describe('auction routes', () => {
   beforeAll(async() => {
@@ -55,15 +56,24 @@ describe('auction routes', () => {
       });
   });
 
-  it('gets the auction details by id with GET', () => {
-    return Auction.create({
+  it('gets the auction details by id with GET', async() => {
+    const auction = await Auction.create({
       user: user._id,
       title: 'Nossa Familia Coffee',
       description: 'Light roast',
       quantity: '20 lbs',
       ending: '2020-06-18T16:00:00Z'
-    })
-      .then(auction => request(app).get(`/api/v1/auctions/${auction._id}`))
+    });
+
+    await Bid.create({
+      user: user._id,
+      auction: auction._id,
+      price: '$50',
+      quantity: '10 lbs',
+      accepted: false
+    });
+    return request(app).get(`/api/v1/auctions/${auction._id}`)
+      .auth('jaime@jaime.com', '12345')
       .then(res => {
         expect(res.body).toEqual({
           _id: expect.anything(),
@@ -73,7 +83,15 @@ describe('auction routes', () => {
           quantity: '20 lbs',
           ending: '2020-06-18T16:00:00.000Z',
           __v: 0,
-          // bids: {}
+          bids: [{
+            _id: expect.anything(),
+            user: user.id,
+            auction: auction.id,
+            price: '$50',
+            quantity: '10 lbs',
+            accepted: false,
+            __v: 0
+          }]
         });
       });
   });
