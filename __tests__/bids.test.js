@@ -67,7 +67,7 @@ describe('bid routes', () => {
       });
   });
 
-  it('gets a bid by id', async() => {
+  it('gets a bid by id with GET', async() => {
     const bid = await Bid.create({
       user: user._id,
       auction: auction._id,
@@ -77,6 +77,30 @@ describe('bid routes', () => {
     });
 
     return request(app).get(`/api/v1/bids/${bid._id}`)
+      .auth('jaime@jaime.com', '12345')
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.anything(),
+          user: user.id,
+          auction: auction.id,
+          price: '$50',
+          quantity: '10 lbs',
+          accepted: false,
+          __v: 0
+        });
+      });
+  });
+
+  it('deletes a bid by id with DELETE', async() => {
+    const bid = await Bid.create({
+      user: user._id,
+      auction: auction._id,
+      price: '$50',
+      quantity: '10 lbs',
+      accepted: false
+    });
+
+    return request(app).delete(`/api/v1/bids/${bid._id}`)
       .auth('jaime@jaime.com', '12345')
       .then(res => {
         expect(res.body).toEqual({
