@@ -7,6 +7,7 @@ const request = require('supertest');
 const app = require('../lib/app');
 const User = require('../lib/models/User');
 const Auction = require('../lib/models/Auction');
+const Bid = require('../lib/models/Bid');
 
 describe('bid routes', () => {
   beforeAll(async() => {
@@ -53,6 +54,30 @@ describe('bid routes', () => {
         quantity: '10 lbs',
         accepted: false
       })
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.anything(),
+          user: user.id,
+          auction: auction.id,
+          price: '$50',
+          quantity: '10 lbs',
+          accepted: false,
+          __v: 0
+        });
+      });
+  });
+
+  it('gets a bid by id', async() => {
+    const bid = await Bid.create({
+      user: user._id,
+      auction: auction._id,
+      price: '$50',
+      quantity: '10 lbs',
+      accepted: false
+    });
+
+    return request(app).get(`/api/v1/bids/${bid._id}`)
+      .auth('jaime@jaime.com', '12345')
       .then(res => {
         expect(res.body).toEqual({
           _id: expect.anything(),
