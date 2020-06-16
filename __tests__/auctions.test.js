@@ -70,6 +70,7 @@ describe('auction routes', () => {
       auction: auction._id,
       price: '$50',
       quantity: '10 lbs',
+      submitted: '2020-06-18T16:00:00.000Z',
       accepted: false
     });
     return request(app).get(`/api/v1/auctions/${auction._id}`)
@@ -89,6 +90,7 @@ describe('auction routes', () => {
             auction: auction.id,
             price: '$50',
             quantity: '10 lbs',
+            submitted: '2020-06-18T16:00:00.000Z',
             accepted: false,
             __v: 0
           }]

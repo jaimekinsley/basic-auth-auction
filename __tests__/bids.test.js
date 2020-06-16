@@ -38,12 +38,14 @@ describe('bid routes', () => {
     });
   });
 
+  const date = new Date();
+
   afterAll(async() => {
     await mongoose.connection.close();
     return mongod.stop();
   });
 
-  it('creates a new bid with POST', () => {
+  it('creates a new bid with POST', async() => {
     return request(app)
       .post('/api/v1/bids')
       .auth('jaime@jaime.com', '12345')
@@ -52,6 +54,7 @@ describe('bid routes', () => {
         auction: auction._id,
         price: '$50',
         quantity: '10 lbs',
+        submitted: date,
         accepted: false
       })
       .then(res => {
@@ -61,6 +64,7 @@ describe('bid routes', () => {
           auction: auction.id,
           price: '$50',
           quantity: '10 lbs',
+          submitted: date.toISOString(),
           accepted: false,
           __v: 0
         });
@@ -73,6 +77,7 @@ describe('bid routes', () => {
       auction: auction._id,
       price: '$50',
       quantity: '10 lbs',
+      submitted: date,
       accepted: false
     });
 
@@ -85,6 +90,7 @@ describe('bid routes', () => {
           auction: auction.id,
           price: '$50',
           quantity: '10 lbs',
+          submitted: date.toISOString(),
           accepted: false,
           __v: 0
         });
@@ -97,6 +103,7 @@ describe('bid routes', () => {
       auction: auction._id,
       price: '$50',
       quantity: '10 lbs',
+      submitted: date,
       accepted: false
     });
 
@@ -109,6 +116,7 @@ describe('bid routes', () => {
           auction: auction.id,
           price: '$50',
           quantity: '10 lbs',
+          submitted: date.toISOString(),
           accepted: false,
           __v: 0
         });
